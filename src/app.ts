@@ -1,24 +1,15 @@
-import express, { Request, Response } from "express"
+import express, { Application } from "express"
+import router from "./routing/authRoutes";
+import dotenv from "dotenv"
 
-const app = express()
-const PORT = 3000
+dotenv.config({quiet: true})
+
+const app: Application = express()
+const PORT = process.env.PORT
 
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("hello")
-});
-
-app.get("/hello", (req: Request, res: Response) => {
-    res.json({
-        message: 'API is working!',
-        timestamp: new Date().toISOString()
-    });
-})
-
-app.get("/test", (req: Request, res:Response) => {
-    res.send("contoh nomor 2")
-})
+app.use("/auth", router);
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)

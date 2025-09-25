@@ -22,9 +22,10 @@ export const userSignup = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
         const user_id = await generateUserId();
-        const user = await userModel.createUser({user_id, username, password});
 
-        res.json(user)
+        await userModel.createUser({user_id, username, password});
+
+        res.status(201).json({message: "Successfully created"});
     } catch (err: any) {
         if (err.code === "P2002") {
             return res.status(409).json({message: "Username already exist"})
@@ -38,7 +39,10 @@ export const userLogin = async (req: Request, res: Response) => {
         const { username, password } = req.body
         const user = await userModel.getUser(username);
 
-        res.status(200).json({message: "Success", data: user})
+        if (!user) return res.status(401).json({message: "Invalid username or password"})
+        if (user.password !== password) return res.status(401).json({message: "Invalid username or password"})
+
+        res.status(200).json({message: "Successfully logged in"})
     } catch (err: any) {
         console.error(err)
     }

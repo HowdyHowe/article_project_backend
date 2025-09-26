@@ -10,9 +10,9 @@ datasource db {
 
 model User {
   user_id    String    @id(map: "user_id_prikey") @db.VarChar(10)
-  username   String?   @unique(map: "username_unique") @db.VarChar(99)
-  password   String?   @db.VarChar(99)
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  username   String   @unique(map: "username_unique") @db.VarChar(99)
+  password   String   @db.VarChar(99)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
 }
 

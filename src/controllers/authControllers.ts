@@ -4,6 +4,7 @@ import * as userModel from "../models/authModel";
 import { Request, Response } from "express";
 import { generateUserId } from "../utils/generateID";
 import { sendResponse } from "../utils/response";
+import { generateToken } from "../utils/generateToken";
 
 const authSchema = z.object({
     username: z.string().min(8, "Username minimum length must be 8 characters"),
@@ -54,7 +55,16 @@ export const userLogin = async (req: Request, res: Response) => {
         const isPasswordValid = await bcrypt.compare(password, user.password || "");
         if (!isPasswordValid) return sendResponse(res, 401, "Invalid username or password");
 
-        return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username });
+        const { accessToken, refreshToken } = await generateToken(user.user_id, user.username);
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            // change secure when production
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
+        return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username, token: accessToken });
     } catch (err: any) {
         if (err instanceof z.ZodError) {
             const messages = err.issues.map((e) => e.message);

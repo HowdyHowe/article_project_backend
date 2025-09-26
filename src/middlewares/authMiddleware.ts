@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/response";
+import cookieParser from "../utils/cookieParser";
 
 interface JwtPayload {
     user_id: string;
@@ -15,19 +16,25 @@ declare global {
     }
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader?.split(" ")[1];
-
-    if (!token) return sendResponse(res, 401, "Access token required");
-
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = await req.headers["authorization"];
+    const accessToken = authHeader?.split(" ")[1];
+    const refreshToken = await cookieParser(req);
     const accessTokenSecret = process.env.JWT_ACCESS_SECRET;
+    const refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
+
     if (!accessTokenSecret) return sendResponse(res, 500, "Server configuration error")
+    if (!refreshTokenSecret) return sendResponse(res, 500, "Server configuration error")
+
+    if (!accessToken || !refreshToken) return sendResponse(res, 401, "Access token required");
 
     try {
-        const payload = jwt.verify(token, accessTokenSecret) as unknown as JwtPayload
+        const payloadRefresh = jwt.verify(refreshToken, refreshTokenSecret) as unknown as JwtPayload;
+        const payloadAccess = jwt.verify(accessToken, accessTokenSecret) as unknown as JwtPayload;
 
-        req.user = payload;
+        if (payloadAccess.user_id !== payloadRefresh.user_id) return sendResponse(res, 200, "test");
+
+        req.user = payloadAccess;
         next();
     } catch (err: any) {
         console.error(err)

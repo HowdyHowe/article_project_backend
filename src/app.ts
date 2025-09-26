@@ -1,5 +1,5 @@
 import express, { Application } from "express"
-import router from "./routing/authRoutes";
+import authRouter from "./routing/authRoutes";
 import dotenv from "dotenv"
 
 dotenv.config({quiet: true})
@@ -9,7 +9,7 @@ const PORT = process.env.PORT
 
 app.use(express.json());
 
-app.use("/auth", router);
+app.use("/auth", authRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`)

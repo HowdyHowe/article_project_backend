@@ -13,10 +13,8 @@ const authSchema = z.object({
 export const getAll = async (req: Request, res: Response) => {
     try {
         const user = await userModel.getAll();
-
         sendResponse(res, 201, "Success", { user })
     } catch {
-
         sendResponse(res, 409, "Failed")
     }
 }
@@ -51,10 +49,10 @@ export const userLogin = async (req: Request, res: Response) => {
             password: req.body.password?.trim()
         })
         const user = await userModel.getUser(username);
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         if (!user) return sendResponse(res, 401, "Invalid username or password");
-        if (user.password !== hashedPassword) return sendResponse(res, 401, "Invalid username or password");
+
+        const isPasswordValid = await bcrypt.compare(password, user.password || "");
+        if (!isPasswordValid) return sendResponse(res, 401, "Invalid username or password");
 
         return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username });
     } catch (err: any) {

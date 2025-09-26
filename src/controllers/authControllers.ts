@@ -2,13 +2,8 @@ import z from "zod";
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
 import * as userModel from "../models/authModel";
-
-const generateUserId = async (): Promise<string> => {
-  const count = await prisma.user.count();
-  const next = count + 1;
-
-  return `USR${String(next).padStart(4, "0")}`;
-};
+import { generateUserId } from "../utils/generateID";
+import { sendResponse } from "../utils/response";
 
 const authSchema = z.object({
     username: z.string().min(8, "Username minimum length must be 8 characters"),
@@ -19,10 +14,10 @@ export const getAll = async (req: Request, res: Response) => {
     try {
         const user = await userModel.getAll();
 
-        res.status(200).json({message: "berhasil", data: {user}})
+        sendResponse(res, 201, "Success", { user })
     } catch {
 
-        res.status(409).json({message: "gagal"})
+        sendResponse(res, 409, "Failed")
     }
 }
 

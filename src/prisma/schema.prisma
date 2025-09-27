@@ -8,11 +8,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  user_id    String    @id(map: "user_id_prikey") @db.VarChar(10)
-  username   String   @unique(map: "username_unique") @db.VarChar(99)
-  password   String   @db.VarChar(99)
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  updated_at DateTime @default(now()) @db.Timestamp(6)
+enum Role {
+  USER
+  ADMIN
 }
 
+model User {
+  user_id    String   @id(map: "user_id_prikey") @db.VarChar(10)
+  username   String   @unique(map: "username_unique") @db.VarChar(99)
+  password   String   @db.VarChar(99)
+  role       Role     @default(USER)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+
+  article    Article[]
+}
+
+model Article {
+  article_id  String   @id(map: "article_id_prikey") @db.VarChar(10)
+  title       String   @db.VarChar(99)
+  content     String   @db.Text
+  // foreign key
+  user_id     String   @db.VarChar(10)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+  // foreign key
+  category_id String   @db.VarChar(10)
+
+  author      User     @relation(fields: [user_id], references: [user_id])
+  category    Category @relation(fields: [category_id], references: [category_id])
+
+}
+
+model Category {
+  category_id String   @id(map: "category_id_prikey") @db.VarChar(10)
+  name        String   @db.VarChar(20)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+
+  article     Article[]
+}

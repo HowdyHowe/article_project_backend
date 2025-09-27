@@ -23,5 +23,5 @@ export const generateToken = async (user_id: string, username: string) => {
         { expiresIn: "7d" }
     );
 
-    return { accessToken, refreshToken }
+    return { accessToken, refreshToken };
 }

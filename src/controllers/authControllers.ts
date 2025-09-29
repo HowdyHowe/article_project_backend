@@ -1,9 +1,9 @@
 import z from "zod";
 import bcrypt from "bcrypt";
-import * as userModel from "../models/authModel";
+import * as authModel from "../models/authModel";
 import { Request, Response } from "express";
-import { generateUserId } from "../utils/generateID";
 import { sendResponse } from "../utils/response";
+import { generateUserId } from "../utils/generateID";
 import { generateToken } from "../utils/generateToken";
 
 const authSchema = z.object({
@@ -13,14 +13,14 @@ const authSchema = z.object({
 
 export const getAll = async (req: Request, res: Response) => {
     try {
-        const user = await userModel.getAll();
+        const user = await authModel.getAll();
         sendResponse(res, 201, "Success", { user })
     } catch {
         sendResponse(res, 409, "Failed")
     }
 }
 
-export const userSignup = async (req: Request, res: Response) => {
+export const userSignupController = async (req: Request, res: Response) => {
     try {
         const { username, password } = authSchema.parse({
             username: req.body.username?.trim(),
@@ -28,7 +28,7 @@ export const userSignup = async (req: Request, res: Response) => {
         })
         const user_id = await generateUserId();
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await userModel.createUser({user_id: user_id, username: username, password: hashedPassword});
+        const newUser = await authModel.createUserModel({user_id: user_id, username: username, password: hashedPassword});
 
         return sendResponse(res, 201, "Successfully Created", { user_id: newUser.user_id, username: newUser.username  });
     } catch (err: any) {
@@ -43,13 +43,13 @@ export const userSignup = async (req: Request, res: Response) => {
     }
 };
 
-export const userLogin = async (req: Request, res: Response) => {
+export const userLoginController = async (req: Request, res: Response) => {
     try {
         const { username, password } = authSchema.parse({
             username: req.body.username?.trim(),
             password: req.body.password?.trim()
         })
-        const user = await userModel.getUser(username);
+        const user = await authModel.getUserModel(username);
         if (!user) return sendResponse(res, 401, "Invalid username or password");
 
         const isPasswordValid = await bcrypt.compare(password, user.password || "");

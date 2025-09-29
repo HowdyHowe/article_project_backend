@@ -6,11 +6,11 @@ type CreateUserType = {
     password: string
 }
 
-export const createUser = async ({ user_id, username, password }: CreateUserType) => {
+export const createUserModel = async ({ user_id, username, password }: CreateUserType) => {
     return await prisma.user.create({data: { user_id, username, password }})
 };
 
-export const getUser = async (username: string) => {
+export const getUserModel = async (username: string) => {
     return await prisma.user.findUnique({where: {username: username}})
 }
 

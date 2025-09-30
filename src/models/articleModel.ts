@@ -16,10 +16,10 @@ export const getAllArticleModel = async () => {
     return await prisma.article.findMany();
 }
 
-export const getArticleModel = async (input: string) => {
-    return await prisma.article.findMany({ where: { title: { contains: input, mode: "insensitive" } } });
+export const getArticleModel = async (title: string) => {
+    return await prisma.article.findMany({ where: { title: { contains: title, mode: "insensitive" } } });
 }
 
-export const deleteArticleModel = async (input: string) => {
-    return await prisma.article.delete({ where: { article_id: input } })
+export const deleteArticleModel = async (article_id: string) => {
+    return await prisma.article.delete({ where: { article_id: article_id } })
 }

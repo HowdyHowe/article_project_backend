@@ -18,13 +18,13 @@ declare global {
 }
 
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers["authorization"];
-    const curAccessToken = authHeader?.split(" ")[1];
-    const curRefreshToken = await cookieParser(req);
-    const accessTokenSecret = process.env.JWT_ACCESS_SECRET;
-    const refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
-    let payloadAccess: PayloadData;
-    let payloadRefresh: PayloadData;
+    const authHeader            = req.headers["authorization"];
+    const curAccessToken        = authHeader?.split(" ")[1];
+    const curRefreshToken       = await cookieParser(req);
+    const accessTokenSecret     = process.env.JWT_ACCESS_SECRET;
+    const refreshTokenSecret    = process.env.JWT_REFRESH_SECRET;
+    let payloadAccess   : PayloadData;
+    let payloadRefresh  : PayloadData;
 
     if (!accessTokenSecret || !refreshTokenSecret) return sendResponse(res, 500, "Server configuration error")
     if (!curAccessToken || !curRefreshToken) return sendResponse(res, 401, "Access token required");
@@ -37,9 +37,9 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             res.cookie("refreshToken", "", {
                 httpOnly: true,
                 // change true when on production
-                secure: false,
+                secure  : false,
                 sameSite: "strict",
-                maxAge: 0
+                maxAge  : 0
             });
 
             return sendResponse(res, 401, "Refresh token expired")

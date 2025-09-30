@@ -9,8 +9,4 @@ authRouter.post("/signup", userSignupController);
 authRouter.post("/login", userLoginController);
 authRouter.get("/getall", authenticateToken, getAll);
 
-// test
-
-authRouter.get("/test", authenticateToken, getAllArticleController);
-
 export default authRouter;

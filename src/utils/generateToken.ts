@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config({quiet: true});
 
 export const generateToken = async (user_id: string, username: string) => {
-    const accessSecret = process.env.JWT_ACCESS_SECRET;
+    const accessSecret  = process.env.JWT_ACCESS_SECRET;
     const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
     if (!accessSecret || !refreshSecret) {

@@ -1,13 +1,15 @@
+import { Role } from "@prisma/client";
 import prisma from "../prisma/client";
 
 type CreateUserType = {
-    user_id: string
+    user_id : string
     username: string
     password: string
+    role    : Role
 }
 
-export const createUserModel = async ({ user_id, username, password }: CreateUserType) => {
-    return await prisma.user.create({data: { user_id, username, password }})
+export const createUserModel = async ({ user_id, username, password, role }: CreateUserType) => {
+    return await prisma.user.create({data: { user_id, username, password, role }})
 };
 
 export const getUserModel = async (username: string) => {

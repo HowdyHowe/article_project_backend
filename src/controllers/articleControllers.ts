@@ -8,6 +8,10 @@ const searchSchema = z.object({
     search      : z.string()
 });
 
+const deleteSchema = z.object({
+    input      : z.string()
+})
+
 const articleSchema = z.object({
     title       : z.string().min(10, "Title minimum length must be 10 characters"),
     content     : z.string(),
@@ -55,22 +59,44 @@ export const getAllArticleController = async (req: Request, res: Response) => {
     }
 };
 
-export const getArticleController = async (req: Request, res: Response) => {
+export const searchArticleController = async (req: Request, res: Response) => {
     try {
         const { search } = searchSchema.parse({
-            search: req.body.search ?? "",
+            search: req.body?.search ?? "",
         });
 
         const result = search === ""
             ? await articleModel.getAllArticleModel()
-            : await articleModel.getArticleModel(search)
+            : await articleModel.getSearchArticleModel(search)
+
+        if (!result || result.length === 0) return sendResponse(res, 404, "Article not found");
 
         return sendResponse(res, 200, "Successfully found article", { result })
     } catch (err: any) {
-        console.error("Error in getArticleController: ", err)
+        console.error("Error in getArticleController: ", err);
 
-        if (err.name === "ZodError") return sendResponse(res, 200, "Invalid search parameter");
+        if (err.name === "ZodError") return sendResponse(res, 400, "Invalid search parameter");
 
-        return sendResponse(res, 500, "Failed to retrieve articles")
+        return sendResponse(res, 500, "Failed to retrieve articles");
+    }
+};
+
+export const deleteArticleController = async (req: Request, res: Response) => {
+    try{
+        const { input } = deleteSchema.parse({
+            input: req.body.delete ?? "",
+        })
+
+        if (!input) return sendResponse(res, 400, "Invalid article ID")
+
+        const result = await articleModel.deleteArticleModel(input);
+
+        return sendResponse(res, 200, "Article deleted successfully", { result });
+    } catch (err: any) {
+        console.error("Error in deleteArticleController: ", err);
+
+        if (err.code === "P2025") return sendResponse(res, 404, "Article not found");
+
+        return sendResponse(res, 500, "Failed to delete Article");
     }
 };

@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { createArticleController, getAllArticleController } from "../controllers/articleControllers";
+import { createArticleController, deleteArticleController, searchArticleController } from "../controllers/articleControllers";
 import { authenticateToken } from "../middlewares/authTokenMiddleware";
 
 const articleRouter = Router();
 
-articleRouter.post("/add", authenticateToken, createArticleController);
-articleRouter.get("/getAll", authenticateToken, getAllArticleController);
+articleRouter.post("/addArticle", authenticateToken, createArticleController);
+articleRouter.get("/searchArticle", authenticateToken, searchArticleController);
+articleRouter.post("/deleteArticle", authenticateToken, deleteArticleController);
 
 export default articleRouter;

@@ -12,4 +12,4 @@ export const generateArticleId = async (): Promise<string> => {
   const next  = count + 1;
 
   return `ART${String(next).padStart(4, "0")}`;
-}
+};

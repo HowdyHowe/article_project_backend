@@ -20,7 +20,7 @@ const updateArticleSchema = createArticleSchema.extend({
 })
 
 const deleteArticleSchema = z.object({
-    input       : z.string()
+    article_id       : z.string()
 })
 
 export const createArticleController = async (req: Request, res: Response) => {
@@ -101,13 +101,13 @@ export const updateArticleController = async (req: Request, res: Response) => {
 
 export const deleteArticleController = async (req: Request, res: Response) => {
     try{
-        const { input } = deleteArticleSchema.parse({
-            input       : req.body.delete ?? "",
-        })
+        const { article_id } = deleteArticleSchema.parse({
+            article_id       : req.body.article_id ?? "",
+        });
 
-        if (!input) return sendResponse(res, 400, "Invalid article ID")
+        if (!article_id) return sendResponse(res, 400, "Invalid article ID");
 
-        const result = await articleModel.deleteArticleModel(input);
+        const result = await articleModel.deleteArticleModel(article_id);
 
         return sendResponse(res, 200, "Article deleted successfully", { result });
     } catch (err: any) {

@@ -12,14 +12,19 @@ const getCategorySchema = z.object({
     category_id : z.string()
 });
 
-const updateCategorySchema = z.object({
-    category_id : z.string(),
-    new_name    : z.string().min(4, "Category name minimum lenght is 4 characters")
-})
-
 const searchCategorySchema = z.object({
     search      : z.string()
 });
+
+const updateCategorySchema = z.object({
+    category_id : z.string(),
+    new_name    : z.string().min(4, "Category name minimum lenght is 4 characters")
+});
+
+const deleteCategorySchema = z.object({
+    category_id : z.string(),
+});
+
 
 export const createCategoryController = async (req: Request, res: Response) => {
     try {
@@ -113,16 +118,30 @@ export const updateCategoryController = async (req: Request, res: Response) => {
             const messages = err.issues.map((e) => e.message);
             return sendResponse(res, 400, messages.join(", "));
         }
-        if (err.code === "P2002") return sendResponse(res, 409, "Article title already exists");
+        if (err.code === "P2002") return sendResponse(res, 409, "Category title already exists");
 
-        return sendResponse(res, 500, "Failed to update article");
+        return sendResponse(res, 500, "Failed to update category");
     }
 };
 
-export const deleteCategoryController = () => {
+export const deleteCategoryController = async (req: Request, res: Response) => {
     try {
+        const { category_id } = deleteCategorySchema.parse({
+            category_id : req.body.category_id
+        });
+        const deleteCategory = await categoryModel.deleteCategoryModel(category_id);
 
+        return sendResponse(res, 200, "Successfully deleted", { name: deleteCategory.name });
     } catch (err: any) {
+        console.error("Error in deleteCategoryController: ", err)
 
+        if (err instanceof z.ZodError) {
+            const messages = err.issues.map((e) => e.message);
+            return sendResponse(res, 400, messages.join(", "));
+        }
+
+        if (err.code === "P2025") return sendResponse(res, 404, "Category not found");
+
+        return sendResponse(res, 500, "Failed to delete category")
     }
 };

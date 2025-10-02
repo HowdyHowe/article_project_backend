@@ -13,3 +13,10 @@ export const generateArticleId = async (): Promise<string> => {
 
   return `ART${String(next).padStart(4, "0")}`;
 };
+
+export const generateCategoryId = async (): Promise<string> => {
+  const count = await prisma.category.count();
+  const next  = count + 1;
+
+  return `CTG${String(next).padStart(4, "0")}`;
+}

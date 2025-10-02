@@ -1,11 +1,6 @@
 import prisma from "../prisma/client"
 
-type CreateArticleType = {
-    category_id : string
-    name        : string
-};
-
-export const createCategoryModel = async ({ category_id, name }: CreateArticleType) => {
+export const createCategoryModel = async (category_id: string, name: string) => {
     return await prisma.category.create({ data: { category_id, name } });
 };
 

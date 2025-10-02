@@ -26,7 +26,7 @@ model User {
 
 model Article {
   article_id  String   @id(map: "article_id_prikey") @db.VarChar(10)
-  title       String   @unique @db.VarChar(99)
+  title       String   @db.VarChar(99)
   content     String   @db.Text
   // foreign key
   user_id     String   @db.VarChar(10)
@@ -42,7 +42,7 @@ model Article {
 
 model Category {
   category_id String   @id(map: "category_id_prikey") @db.VarChar(10)
-  name        String   @db.VarChar(20)
+  name        String   @unique @db.VarChar(20)
   created_at  DateTime @default(now()) @db.Timestamp(6)
   updated_at  DateTime @default(now()) @db.Timestamp(6)
 

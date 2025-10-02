@@ -1,12 +1,13 @@
+import cookieParser from "../utils/cookieParser";
 import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/response";
-import cookieParser from "../utils/cookieParser";
 import { generateToken } from "../utils/generateToken";
 
 interface PayloadData extends JwtPayload {
     user_id: string;
     username: string;
+    role: string
 }
 
 declare global {

@@ -9,8 +9,13 @@ const createCategorySchema = z.object({
 });
 
 const getCategorySchema = z.object({
-    category_id  : z.string()
+    category_id : z.string()
 });
+
+const updateCategorySchema = z.object({
+    category_id : z.string(),
+    new_name    : z.string().min(4, "Category name minimum lenght is 4 characters")
+})
 
 const searchCategorySchema = z.object({
     search      : z.string()
@@ -89,11 +94,28 @@ export const searchCategoryController = async (req: Request, res: Response) => {
     }
 };
 
-export const updateCategoryController = (req: Request, res: Response) => {
+export const updateCategoryController = async (req: Request, res: Response) => {
     try {
+        const { category_id, new_name } = updateCategorySchema.parse({
+            category_id     : req.body.category_id,
+            new_name        : req.body.new_name
+        });
+        const categoryExistance = await categoryModel.getCategoryModel(category_id);
+        if (!categoryExistance) return sendResponse(res, 404, "Category did not exist");
 
+        const updateCategory = await categoryModel.updateCategoryModel(category_id, new_name);
+
+        return sendResponse(res, 200, "Successfully updated", { name: updateCategory.name });
     } catch (err: any) {
+        console.error("Error in updateCategoryController: ", err)
 
+        if (err instanceof z.ZodError) {
+            const messages = err.issues.map((e) => e.message);
+            return sendResponse(res, 400, messages.join(", "));
+        }
+        if (err.code === "P2002") return sendResponse(res, 409, "Article title already exists");
+
+        return sendResponse(res, 500, "Failed to update article");
     }
 };
 

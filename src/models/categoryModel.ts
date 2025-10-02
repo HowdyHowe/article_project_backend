@@ -16,6 +16,10 @@ export const getCategoryModel = async (category_id: string) => {
     return await prisma.category.findUnique({ where: { category_id: category_id } });
 };
 
+export const updateCategoryModel = async (category_id: string, name: string) => {
+    return await prisma.category.update({ where: {category_id: category_id}, data: { name: name, updated_at: new Date() } })
+}
+
 export const deleteCategoryModel = async (category_id: string) => {
     return await prisma.category.delete({ where: { category_id: category_id } });
 };

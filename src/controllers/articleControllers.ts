@@ -80,19 +80,19 @@ export const updateArticleController = async (req: Request, res: Response) => {
             category_id : req.body.category_id
         });
         const articleExistance = await articleModel.getArticleModel(article_id);
-        const updateArticle = await articleModel.updateArticleModel(article_id, title,  content, user_id, category_id);
+        if (!articleExistance) return sendResponse(res, 404, "Article did not exist");
 
-        if (!articleExistance) return sendResponse(res, 404, "Article not found");
+        const updateArticle = await articleModel.updateArticleModel(article_id, title,  content, user_id, category_id);
         if (user_id !== updateArticle.user_id) return sendResponse(res, 403, "Admin didnt own this article");
 
         return sendResponse(res, 200, "Successfully updated", { article_id: updateArticle.article_id, title: updateArticle.title, user_id: updateArticle.user_id, category_id: updateArticle.category_id, created_at: updateArticle.created_at });
     } catch (err: any) {
         console.error("Error in updateArticleController: ", err)
 
-    if (err instanceof z.ZodError) {
-        const messages = err.issues.map((e) => e.message);
-        return sendResponse(res, 400, messages.join(", "));
-    }
+        if (err instanceof z.ZodError) {
+            const messages = err.issues.map((e) => e.message);
+            return sendResponse(res, 400, messages.join(", "));
+        }
         if (err.code === "P2002") return sendResponse(res, 409, "Article title already exists");
 
         return sendResponse(res, 500, "Failed to update article");

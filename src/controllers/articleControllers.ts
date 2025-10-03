@@ -11,6 +11,10 @@ const createArticleSchema = z.object({
     category_id : z.string()
 });
 
+const getArticleSchema = z.object({
+    article_id: z.string()
+})
+
 const searchArticleSchema = z.object({
     search      : z.string()
 });
@@ -25,12 +29,15 @@ const deleteArticleSchema = z.object({
 
 export const createArticleController = async (req: Request, res: Response) => {
     try {
-        const { title, content, user_id, category_id } = createArticleSchema.parse({
+        const { title, content, category_id } = createArticleSchema.parse({
             title       : req.body.title,
             content     : req.body.content,
-            user_id     : req.body.user_id,
             category_id : req.body.category_id
         });
+        const user_id = req.user?.user_id;
+
+        if (!user_id) return sendResponse(res, 400, "User ID is required");
+
         const article_id = await generateArticleId();
         const newArticle = await articleModel.createArticleModel(article_id, title, content, user_id, category_id);
 
@@ -46,7 +53,32 @@ export const createArticleController = async (req: Request, res: Response) => {
         return sendResponse(res, 500, "Something went wrong");
 
     }
-}
+};
+
+export const getArticleController = async (req: Request, res: Response) => {
+    try {
+        const { article_id } = getArticleSchema.parse({
+            article_id: req.body.article_id
+        });
+        const getArticle = await articleModel.getArticleModel(article_id);
+
+        if (!getArticle) return sendResponse(res, 404, "Article not found");
+
+        return sendResponse(res, 200, "Successfully get article")
+    } catch (err: any) {
+        console.error("Error in getArticleController: ", err);
+
+        if (err instanceof z.ZodError) {
+            const messages = err.issues.map((e) => e.message);
+            return sendResponse(res, 400, messages.join(", "));
+        };
+
+        if (err.code === "P2025") return sendResponse(res, 404, "Article not found");
+
+        return sendResponse(res, 500, "Something went wrong");
+
+    }
+};
 
 export const searchArticleController = async (req: Request, res: Response) => {
     try {

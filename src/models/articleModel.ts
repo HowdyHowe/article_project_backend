@@ -5,7 +5,7 @@ export const createArticleModel = async (article_id: string, title: string, cont
 };
 
 export const getAllArticleModel = async () => {
-    return await prisma.article.findMany();
+    return await prisma.article.findMany({ include: { category: true, author: { select: { user_id: true, username: true, role: true } } } });
 };
 
 export const getSearchArticleModel = async (input: string) => {

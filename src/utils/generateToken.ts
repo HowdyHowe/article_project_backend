@@ -14,7 +14,7 @@ export const generateToken = async (user_id: string, username: string) => {
     const accessToken = jwt.sign(
         { user_id: user_id, username: username },
         accessSecret,
-        { expiresIn: "30m" }
+        { expiresIn: "2h" }
     );
 
     const refreshToken = jwt.sign(

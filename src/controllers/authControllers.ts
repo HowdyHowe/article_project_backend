@@ -13,14 +13,14 @@ const authSchema = z.object({
     role    : z.enum([ "USER", "ADMIN" ])
 });
 
-export const getAll = async (req: Request, res: Response) => {
-    try {
-        const user = await authModel.getAll();
-        sendResponse(res, 201, "Success", { user })
-    } catch {
-        sendResponse(res, 409, "Failed")
-    }
-}
+// export const getAll = async (req: Request, res: Response) => {
+//     try {
+//         const user = await authModel.getAll();
+//         sendResponse(res, 201, "Success", { user })
+//     } catch {
+//         sendResponse(res, 409, "Failed")
+//     }
+// }
 
 export const userSignupController = async (req: Request, res: Response) => {
     try {

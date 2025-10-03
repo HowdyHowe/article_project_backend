@@ -34,6 +34,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     try {
         payloadRefresh = jwt.verify(curRefreshToken, refreshTokenSecret) as unknown as PayloadData;
     } catch (err: any) {
+        console.error("Error in authToken payload refresh: ", err)
         if (err instanceof TokenExpiredError) {
             res.cookie("refreshToken", "", {
                 httpOnly: true,
@@ -58,6 +59,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         req.user = payloadAccess;
         return next();
     } catch (err: any) {
+        console.error("Error in authToken payload access: ", err)
+
         if (err instanceof TokenExpiredError) {
             // creating new access token
             try {

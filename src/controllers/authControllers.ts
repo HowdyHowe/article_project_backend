@@ -7,10 +7,15 @@ import { sendResponse } from "../utils/response";
 import { generateUserId } from "../utils/generateID";
 import { generateToken } from "../utils/generateToken";
 
-const authSchema = z.object({
+const authSignupSchema = z.object({
     username: z.string().min(8, "Username minimum length must be 8 characters"),
     password: z.string().min(8, "Password minimum length must be 8 characters"),
     role    : z.enum([ "USER", "ADMIN" ])
+});
+
+const authLoginSchema = z.object({
+    username: z.string().min(8, "Username minimum length must be 8 characters"),
+    password: z.string().min(8, "Password minimum length must be 8 characters")
 });
 
 // export const getAll = async (req: Request, res: Response) => {
@@ -24,7 +29,7 @@ const authSchema = z.object({
 
 export const userSignupController = async (req: Request, res: Response) => {
     try {
-        const { username, password, role } = authSchema.parse({
+        const { username, password, role } = authSignupSchema.parse({
             username: req.body.username?.trim(),
             password: req.body.password?.trim(),
             role    : req.body.role?.toUpperCase()
@@ -52,7 +57,7 @@ export const userSignupController = async (req: Request, res: Response) => {
 
 export const userLoginController = async (req: Request, res: Response) => {
     try {
-        const { username, password } = authSchema.parse({
+        const { username, password } = authLoginSchema.parse({
             username: req.body.username?.trim(),
             password: req.body.password?.trim()
         })

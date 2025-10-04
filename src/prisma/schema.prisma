@@ -38,6 +38,7 @@ model Article {
   author      User     @relation(fields: [user_id], references: [user_id])
   category    Category @relation(fields: [category_id], references: [category_id])
 
+  @@unique([user_id, title], map: "unique_author_title")
 }
 
 model Category {

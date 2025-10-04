@@ -28,7 +28,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     let payloadRefresh  : PayloadData;
 
     if (!accessTokenSecret || !refreshTokenSecret) return sendResponse(res, 500, "Server configuration error")
-    if (!curAccessToken || !curRefreshToken) return sendResponse(res, 401, "Access token required");
+    if (!curRefreshToken) return sendResponse(res, 401, "Refresh token token required");
+    if (!curAccessToken) return sendResponse(res, 401, "Access token required");
 
     // verifying refresh token
     try {
@@ -66,7 +67,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             try {
                 const { accessToken } = await generateToken(payloadRefresh.user_id, payloadRefresh.username);
 
-                return sendResponse(res, 200, "Access token refreshed", { newAccessToken: accessToken });
+                return sendResponse(res, 202, "Access token refreshed", { newAccessToken: accessToken });
             } catch (err: any) {
                 console.error("error: ", err.message);
                 return sendResponse(res, 500, "Failed to generate new access token")

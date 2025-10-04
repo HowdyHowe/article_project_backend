@@ -50,7 +50,7 @@ export const createCategoryController = async (req: Request, res: Response) => {
 export const getCategoryController = async (req: Request, res: Response) => {
     try {
         const { category_id } = getCategorySchema.parse({
-            category_id : req.body.category_id
+            category_id     : req.body.category_id
         });
         const getCategory = await categoryModel.getCategoryModel(category_id);
 
@@ -74,7 +74,7 @@ export const getCategoryController = async (req: Request, res: Response) => {
 export const searchCategoryController = async (req: Request, res: Response) => {
     try {
         const { search } = searchCategorySchema.parse({
-            search  : req.body?.search ?? ""
+            search      : req.body?.search ?? ""
         });
         const result = search === ""
             ? await categoryModel.getAllCategoryModel()
@@ -104,7 +104,7 @@ export const updateCategoryController = async (req: Request, res: Response) => {
             new_name        : req.body.new_name
         });
         const categoryExistance = await categoryModel.getCategoryModel(category_id);
-        // if (!categoryExistance) return sendResponse(res, 404, "Category did not exist");
+        if (!categoryExistance) return sendResponse(res, 404, "Validation failed", { error: "Category did not exist" });
 
         const updateCategory = await categoryModel.updateCategoryModel(category_id, new_name);
 
@@ -116,7 +116,7 @@ export const updateCategoryController = async (req: Request, res: Response) => {
             const messages = err.issues.map((e) => e.message);
             return sendResponse(res, 400, "Validation failed", { error: messages });
         }
-        if (err.code === "P2002") return sendResponse(res, 409, "Duplicate category", {error: "Category already exists"});
+        if (err.code === "P2002") return sendResponse(res, 409, "Duplicate category", { error: "Category already exists" });
 
         return sendResponse(res, 500, "Failed to update category", { error: "An unexpected server error occurred while updating category" });
     }
@@ -124,12 +124,10 @@ export const updateCategoryController = async (req: Request, res: Response) => {
 
 export const deleteCategoryController = async (req: Request, res: Response) => {
     try {
-        const { category_id } = deleteCategorySchema.parse({
-            category_id : req.body.category_id
-        });
-        const deleteCategory = await categoryModel.deleteCategoryModel(category_id);
+        const { category_id } = deleteCategorySchema.parse(req.body);
+        const result = await categoryModel.deleteCategoryModel(category_id);
 
-        return sendResponse(res, 200, "Successfully deleted", { name: deleteCategory.name });
+        return sendResponse(res, 200, "Successfully deleted", { result });
     } catch (err: any) {
         console.error("Error in deleteCategoryController: ", err)
 

@@ -3,6 +3,7 @@ import * as articleModel from "../models/articleModel";
 import { Request, Response } from "express";
 import { sendResponse } from "../utils/response";
 import { generateArticleId } from "../utils/generateID";
+import prisma from "../prisma/client";
 
 const createArticleSchema = z.object({
     title       : z.string().min(10, "Title minimum length must be 10 characters"),
@@ -15,7 +16,9 @@ const getArticleSchema = z.object({
 })
 
 const searchArticleSchema = z.object({
-    search      : z.string()
+    search      : z.string(),
+    limit      : z.int(),
+    page        : z.int()
 });
 
 const updateArticleSchema = createArticleSchema.extend({
@@ -60,7 +63,7 @@ export const getArticleController = async (req: Request, res: Response) => {
 
         if (!result) return sendResponse(res, 404, "Validation error", { error: "Article not found" });
 
-        return sendResponse(res, 200, "Successfully get article", { result })
+        return sendResponse(res, 200, "Successfully get article", { result,  })
     } catch (err: any) {
         console.error("Error in getArticleController: ", err);
 
@@ -77,17 +80,20 @@ export const getArticleController = async (req: Request, res: Response) => {
 
 export const searchArticleController = async (req: Request, res: Response) => {
     try {
-        const { search } = searchArticleSchema.parse({
+        const { search, limit, page } = searchArticleSchema.parse({
             search      : req.body?.search ?? "",
+            limit      : req.body?.limit ?? 10,
+            page        : req.body?.page ?? 1
         });
-
         const result = search === ""
-            ? await articleModel.getAllArticleModel()
-            : await articleModel.getSearchArticleModel(search)
+            ? await articleModel.getAllArticleModel(limit, page)
+            : await articleModel.getSearchArticleModel(search, limit, page)
+        const total = await prisma.article.count();
+        const total_page = Math.ceil(total/limit);
 
         if (!result || result.length === 0) return sendResponse(res, 404, "Article not found", { error: "No article exists with the given keyword" });
 
-        return sendResponse(res, 200, "Successfully found article", { result })
+        return sendResponse(res, 200, "Successfully found article", { result, page: page, limit: limit, total_page: total_page });
     } catch (err: any) {
         console.error("Error in searchArticleController: ", err);
 

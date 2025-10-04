@@ -4,12 +4,14 @@ export const createArticleModel = async (article_id: string, title: string, cont
     return await prisma.article.create({ data: { article_id, title, content, user_id, category_id } });
 };
 
-export const getAllArticleModel = async () => {
-    return await prisma.article.findMany({ select: { article_id: true, title: true, content: true, created_at: true, updated_at: true, category: true, author: { select: { user_id: true, username: true, role: true } } } });
+export const getAllArticleModel = async (limit: number, page: number) => {
+    const skip = (page - 1) * limit;
+    return await prisma.article.findMany({ skip, take: limit, select: { article_id: true, title: true, content: true, created_at: true, updated_at: true, category: true, author: { select: { user_id: true, username: true, role: true } } } });
 };
 
-export const getSearchArticleModel = async (input: string) => {
-    return await prisma.article.findMany({ where: { title: { contains: input, mode: "insensitive" } }, select: { article_id: true, title: true, content: true, created_at: true, updated_at: true, category: true, author: { select: { user_id: true, username: true, role: true } } } });
+export const getSearchArticleModel = async (search: string, limit: number, page: number) => {
+    const skip = (page - 1) * limit;
+    return await prisma.article.findMany({ skip, take: limit, where: { title: { contains: search, mode: "insensitive" } }, select: { article_id: true, title: true, content: true, created_at: true, updated_at: true, category: true, author: { select: { user_id: true, username: true, role: true } } } });
 };
 
 export const getArticleModel = async (article_id: string) => {

@@ -19,4 +19,4 @@ export const generateCategoryId = async (): Promise<string> => {
   const next  = count + 1;
 
   return `CTG${String(next).padStart(4, "0")}`;
-}
+};

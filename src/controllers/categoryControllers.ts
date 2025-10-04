@@ -3,6 +3,7 @@ import { z, ZodType } from "zod";
 import * as categoryModel from "../models/categoryModel";
 import { generateCategoryId } from "../utils/generateID";
 import { sendResponse } from "../utils/response";
+import prisma from "../prisma/client";
 
 const createCategorySchema = z.object({
     name        : z.string().nonempty("Category name is required").min(3, "Category name minimum length is 3 characters")
@@ -13,7 +14,9 @@ const getCategorySchema = z.object({
 });
 
 const searchCategorySchema = z.object({
-    search      : z.string()
+    search      : z.string(),
+    limit       : z.int(),
+    page        : z.int()
 });
 
 const updateCategorySchema = z.object({
@@ -73,16 +76,20 @@ export const getCategoryController = async (req: Request, res: Response) => {
 
 export const searchCategoryController = async (req: Request, res: Response) => {
     try {
-        const { search } = searchCategorySchema.parse({
-            search      : req.body?.search ?? ""
+        const { search, limit, page } = searchCategorySchema.parse({
+            search      : req.body?.search ?? "",
+            limit       : req.body?.limit ?? 10,
+            page        : req.body?.page ?? 1
         });
         const result = search === ""
-            ? await categoryModel.getAllCategoryModel()
-            : await categoryModel.getSearchCategoryModel(search)
+            ? await categoryModel.getAllCategoryModel(limit, page)
+            : await categoryModel.getSearchCategoryModel(search, limit, page)
+        const total = await prisma.category.count();
+        const total_page = Math.ceil(total/limit);
 
         if (!result || result.length === 0) return sendResponse(res, 404, "Category not found", { error: "No category exists with the given ID" });
 
-        return sendResponse(res, 200, "Successfully found category", { result });
+        return sendResponse(res, 200, "Successfully found category", { result, page: page, limit: limit, total_page: total_page });
     } catch (err: any) {
         console.error("Error in readCategoryController: ", err);
 

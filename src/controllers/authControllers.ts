@@ -57,15 +57,12 @@ export const userSignupController = async (req: Request, res: Response) => {
 
 export const userLoginController = async (req: Request, res: Response) => {
     try {
-        const { username, password } = authLoginSchema.parse({
-            username: req.body.username?.trim(),
-            password: req.body.password?.trim()
-        })
+        const { username, password } = authLoginSchema.parse(req.body)
         const user = await authModel.getUserModel(username);
-        if (!user) return sendResponse(res, 401, "Invalid username or password");
+        if (!user) return sendResponse(res, 400, "Invalid username or password");
 
         const isPasswordValid = await bcrypt.compare(password, user.password || "");
-        if (!isPasswordValid) return sendResponse(res, 401, "Invalid username or password");
+        if (!isPasswordValid) return sendResponse(res, 400, "Invalid username or password");
 
         const { accessToken, refreshToken } = await generateToken(user.user_id, user.username);
         res.cookie("refreshToken", refreshToken, {
@@ -76,14 +73,32 @@ export const userLoginController = async (req: Request, res: Response) => {
             maxAge  : 7 * 24 * 60 * 60 * 1000
         })
 
-        return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username, token: accessToken });
+        return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username, role: user.role, token: accessToken });
     } catch (err: any) {
+        // console.error("Error in userLoginController: ", err);
         if (err instanceof z.ZodError) {
             const messages = err.issues.map((e) => e.message);
-            return sendResponse(res, 400, messages.join(", "));
+            return sendResponse(res, 400, "Validation failed", { error: messages });
         }
 
-        console.error("Error in userLoginController: ", err);
-        return sendResponse(res, 500, "Something went wrong");
+        return sendResponse(res, 500, "Failed to logged in", { error: "An unexpected server error occurred while logging in" });
+    }
+}
+
+export const userLogoutController = async (req: Request, res: Response) => {
+    try {
+        res.cookie("refreshToken", "", {
+            httpOnly: true,
+            // change true when on production
+            secure  : false,
+            sameSite: "strict",
+            maxAge  : 0
+        });
+
+        return sendResponse(res, 200, "Successfully logout")
+    } catch (err: any) {
+        console.error("Error in userLogoutController: ", err)
+
+        return sendResponse(res, 500, "Failed to logged out", { error: "An unexpected server error occurred while logging out" });
     }
 }

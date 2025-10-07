@@ -17,7 +17,8 @@ const getArticleSchema = z.object({
 
 const searchArticleSchema = z.object({
     search      : z.string(),
-    limit      : z.int(),
+    category_id : z.string(),
+    limit       : z.int(),
     page        : z.int()
 });
 
@@ -80,20 +81,23 @@ export const getArticleController = async (req: Request, res: Response) => {
 
 export const searchArticleController = async (req: Request, res: Response) => {
     try {
-        const { search, limit, page } = searchArticleSchema.parse({
+        const { search, category_id, limit, page } = searchArticleSchema.parse({
             search      : req.body?.search ?? "",
-            limit      : req.body?.limit ?? 10,
+            category_id : req.body?.category_id ?? "",
+            limit       : req.body?.limit ?? 10,
             page        : req.body?.page ?? 1
         });
-        const result = search === ""
+        // const result = await articleModel.getSearchArticleModel(search, category_id, limit, page)
+        const result = search === "" && category_id === ""
             ? await articleModel.getAllArticleModel(limit, page)
-            : await articleModel.getSearchArticleModel(search, limit, page)
+            : await articleModel.getSearchArticleModel(search, category_id, limit, page)
         const total = await prisma.article.count();
         const total_page = Math.ceil(total/limit);
+        const total_article = result?.length;
 
         if (!result || result.length === 0) return sendResponse(res, 404, "Article not found", { error: "No article exists with the given keyword" });
 
-        return sendResponse(res, 200, "Successfully found article", { result, page: page, limit: limit, total_page: total_page });
+        return sendResponse(res, 200, "Successfully found article", { result, page: page, limit: limit, total_article: total_article, total_page: total_page });
     } catch (err: any) {
         console.error("Error in searchArticleController: ", err);
 

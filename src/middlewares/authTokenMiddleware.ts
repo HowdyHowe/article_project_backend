@@ -37,13 +37,28 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     } catch (err: any) {
         console.error("Error in authToken payload refresh: ", err)
         if (err instanceof TokenExpiredError) {
-            res.cookie("refreshToken", "", {
+            res
+            .cookie("refreshToken", "", {
                 httpOnly: true,
                 // change true when on production
                 secure  : false,
                 sameSite: "strict",
                 maxAge  : 0
-            });
+            })
+            .cookie("accessToken", "", {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 0
+            })
+            .cookie("role", "", {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 0
+            })
 
             return sendResponse(res, 401, "Refresh token expired")
         }
@@ -67,7 +82,23 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             try {
                 const { accessToken } = await generateToken(payloadRefresh.user_id, payloadRefresh.username);
 
-                return sendResponse(res, 202, "Access token refreshed", { newAccessToken: accessToken });
+                res
+                .cookie("accessToken", accessToken, {
+                    httpOnly: true,
+                    // change secure when production
+                    secure  : false,
+                    sameSite: "strict",
+                    maxAge  : 2 * 60 * 60 * 1000
+                })
+                .cookie("role", payloadRefresh.role, {
+                    httpOnly: true,
+                    // change secure when production
+                    secure  : false,
+                    sameSite: "strict",
+                    maxAge  : 2 * 60 * 60 * 1000
+                })
+
+                return sendResponse(res, 202, "Access token refreshed");
             } catch (err: any) {
                 console.error("error: ", err.message);
                 return sendResponse(res, 500, "Failed to generate new access token")

@@ -65,13 +65,28 @@ export const userLoginController = async (req: Request, res: Response) => {
         if (!isPasswordValid) return sendResponse(res, 400, "Invalid username or password");
 
         const { accessToken, refreshToken } = await generateToken(user.user_id, user.username);
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            // change secure when production
-            secure  : false,
-            sameSite: "strict",
-            maxAge  : 7 * 24 * 60 * 60 * 1000
-        })
+        res
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 7 * 24 * 60 * 60 * 1000
+            })
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 2 * 60 * 60 * 1000
+            })
+            .cookie("role", user.role, {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 2 * 60 * 60 * 1000
+            })
 
         return sendResponse(res, 200, "Successfully logged in", { user_id: user.user_id, username: user.username, role: user.role, token: accessToken });
     } catch (err: any) {
@@ -87,13 +102,28 @@ export const userLoginController = async (req: Request, res: Response) => {
 
 export const userLogoutController = async (req: Request, res: Response) => {
     try {
-        res.cookie("refreshToken", "", {
-            httpOnly: true,
-            // change true when on production
-            secure  : false,
-            sameSite: "strict",
-            maxAge  : 0
-        });
+        res
+            .cookie("refreshToken", "", {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 0
+            })
+            .cookie("accessToken", "", {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 0
+            })
+            .cookie("role", "", {
+                httpOnly: true,
+                // change secure when production
+                secure  : false,
+                sameSite: "strict",
+                maxAge  : 0
+            })
 
         return sendResponse(res, 200, "Successfully logout")
     } catch (err: any) {

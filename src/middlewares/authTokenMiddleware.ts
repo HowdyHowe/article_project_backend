@@ -19,9 +19,10 @@ declare global {
 }
 
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
-    const authHeader            = req.headers["authorization"];
-    const curAccessToken        = authHeader?.split(" ")[1];
-    const curRefreshToken       = await cookieParser(req);
+    // const authHeader            = req.cookies()
+    // const curAccessToken        = authHeader?.split(" ")[1];
+    const curAccessToken        = req.cookies.accessToken;
+    const curRefreshToken       = req.cookies.refreshToken;
     const accessTokenSecret     = process.env.JWT_ACCESS_SECRET;
     const refreshTokenSecret    = process.env.JWT_REFRESH_SECRET;
     let payloadAccess   : PayloadData;

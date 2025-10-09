@@ -4,6 +4,8 @@ import dotenv from "dotenv"
 import articleRouter from "./routing/articleRoutes";
 import categoryRouter from "./routing/categoryRoutes";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
 
 dotenv.config({quiet: true})
 
@@ -14,9 +16,11 @@ app.use(cors({
     origin: "http://localhost:3001",
     methods: ["GET", "POST"],
     credentials: true,
-}))
+}));
 
+app.use(cookieParser());
 app.use(express.json());
+app.use(morgan(":method :url :status :response-time ms"));
 
 app.use("/auth", authRouter);
 app.use("/article", articleRouter);

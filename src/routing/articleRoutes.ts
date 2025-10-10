@@ -5,7 +5,7 @@ import { authenticateToken } from "../middlewares/authTokenMiddleware";
 const articleRouter = Router();
 
 articleRouter.post("/addArticle", authenticateToken, createArticleController);
-articleRouter.get("/searchArticle", authenticateToken, searchArticleController);
+articleRouter.post("/searchArticle", authenticateToken, searchArticleController);
 articleRouter.get("/getArticle", authenticateToken, getArticleController);
 articleRouter.post("/updateArticle", authenticateToken, updateArticleController);
 articleRouter.post("/deleteArticle", authenticateToken, deleteArticleController);

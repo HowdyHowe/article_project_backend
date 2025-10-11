@@ -44,7 +44,7 @@ export const createCategoryController = async (req: Request, res: Response) => {
 
         if (err.code === "P2003") return sendResponse(res, 400, "Invalid reference", { error: "foreign key constraint failed" });
 
-        if (err.code === "P2002") return sendResponse(res, 409, "Duplicate category", {error: "Category already exists"});
+        if (err.code === "P2002") return sendResponse(res, 409, "Duplicate category", { error: "Category already exists" });
 
         return sendResponse(res, 500, "Failed to create categories", { error: "An unexpected server error occurred while creating category" });
     }

@@ -98,8 +98,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
                     sameSite: "strict",
                     maxAge  : 2 * 60 * 60 * 1000
                 })
-
-                return sendResponse(res, 202, "Access token refreshed");
+                // return sendResponse(res, 202, "Access token refreshed");
+                return next();
             } catch (err: any) {
                 console.error("error: ", err.message);
                 return sendResponse(res, 500, "Failed to generate new access token")

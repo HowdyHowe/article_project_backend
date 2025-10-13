@@ -57,14 +57,14 @@ export const userSignupController = async (req: Request, res: Response) => {
 
 export const userLoginController = async (req: Request, res: Response) => {
     try {
-        const { username, password } = authLoginSchema.parse(req.body)
+        const { username, password } = authLoginSchema.parse(req.body);
         const user = await authModel.getUserModel(username);
         if (!user) return sendResponse(res, 400, "Invalid username or password");
 
         const isPasswordValid = await bcrypt.compare(password, user.password || "");
         if (!isPasswordValid) return sendResponse(res, 400, "Invalid username or password");
 
-        const { accessToken, refreshToken } = await generateToken(user.user_id, user.username);
+        const { accessToken, refreshToken } = await generateToken(user.user_id, user.username, user.role);
         res
             .cookie("refreshToken", refreshToken, {
                 httpOnly: true,

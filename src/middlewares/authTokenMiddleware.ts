@@ -81,7 +81,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         if (err instanceof TokenExpiredError) {
             // creating new access token
             try {
-                const { accessToken } = await generateToken(payloadRefresh.user_id, payloadRefresh.username);
+                const { accessToken } = await generateToken(payloadRefresh.user_id, payloadRefresh.username, payloadRefresh.role);
+                console.log("Ini role dari backend: ", payloadRefresh.role)
 
                 res
                 .cookie("accessToken", accessToken, {

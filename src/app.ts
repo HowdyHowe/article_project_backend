@@ -13,16 +13,14 @@ const app   = express()
 const PORT  = process.env.PORT
 
 app.use(cors({
-    origin: "http://localhost:3001",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
 }));
 
 app.use(cookieParser());
 app.use(express.json());
-
-
-app.use(morgan("dev")); // or use 'combined', 'common', 'short', 'tiny'
+app.use(morgan("dev"));
 
 // Optional: Add a custom morgan format to see it's definitely working
 app.use(morgan((tokens, req, res) => {

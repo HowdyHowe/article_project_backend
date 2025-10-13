@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config({quiet: true});
 
-export const generateToken = async (user_id: string, username: string) => {
+export const generateToken = async (user_id: string, username: string, role: string) => {
     const accessSecret  = process.env.JWT_ACCESS_SECRET;
     const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
@@ -12,13 +12,13 @@ export const generateToken = async (user_id: string, username: string) => {
     }
 
     const accessToken = jwt.sign(
-        { user_id: user_id, username: username },
+        { user_id: user_id, username: username, role: role },
         accessSecret,
-        { expiresIn: "2m" }
+        { expiresIn: "1m" }
     );
 
     const refreshToken = jwt.sign(
-        { user_id: user_id, username: username },
+        { user_id: user_id, username: username, role: role },
         refreshSecret,
         { expiresIn: "7d" }
     );
